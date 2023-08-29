@@ -1,31 +1,502 @@
 ---
-title: "CaseStudy1"
+title: "Case Study 1: How Does a Bike-Share Navigate Speed Success?"
 author: "Priyanka Belde"
-date: "2023-08-29"
+date: "2023-08-23"
 output: html_document
 ---
 
+This case study is the capstone project for the **Google Data Analytics Professional Certificate**.
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+### Introduction
+This case study will be used to showcase real-world tasks and each step of the data analysis process that was taught in the Google Data Analytics Professional Certificate: ask, prepare, process, analyze, share, and act.
+
+The company that I am working for, Cyclistic, is a fictional company, however, the data used is from a real bike-share company from Chicago. For more information on the data used, please see the Prepare section
+
+#### Scenario
+I am a data analyst working at Cyclistic in the marketing analyst team for six months. Lily Moreno, the director of marketing, believes that maximizing the number of annual members known as Cyclistic members will be the key to the company’s future success. Therefore, the marketing analyst team is tasked to understand how casual riders and annual riders use the company’s services differently. We will develop a new marketing strategy to convert casual riders into annual members. However, our recommendations must be backed up by compelling data insights and professional data visualizations before the Cyclistic executives approve of them.
+
+### Characters and Teams
+
+* Cyclistic: A bike-share program that features more than 5,800 bicycles and 600 docking stations. Cyclistic sets itself apart by also offering reclining bikes, hand tricycles, and cargo bikes, making bike-share more inclusive to people with disabilities and riders who can’t use a standard two-wheeled bike. The majority of riders opt for traditional bikes; about 8% of riders use the assistive options. Cyclistic users are more likely to ride for leisure, but about 30% use them to commute to work each day.
+
+* Lily Moreno: The director of marketing. Moreno is responsible for the development of campaigns and initiatives to promote the bike-share program. These may include email, social media, and other channels.
+
+* Cyclistic marketing analytics team: A team of data analysts who are responsible for collecting, analyzing, and reporting data that helps guide Cyclistic marketing strategy.
+
+* Cyclistic executive team: The notoriously detail-oriented executive team will decide whether to approve the recommended marketing program.
+
+### About the company
+Cyclistic is a bike-share company that was started in 2016. Currently, there are 5,824 bicycles and 692 docking stations across Chicago. Each bicycle is geotracked and can be unlocked and returned to any of the 692 stations around Chicago.
+
+In the past, Cyclistic’s marketing strategy was to bring awareness to the program and to appeal to and target broader consumers. This was done by offering three types of flexible pricing options: single-ride pass, full-day pass or annual memberships. Single-ride pass and full-day pass users are known as **Casual Riders**. Customers who purchased the annual memberships are known as **Cyclistic Members**. However, the finance analysts in the company have determined that annual memberships are more profitable than casual rider passes. Moreno, the director of marketing, believes that the key to the company’s future success is to maximize the number of annual memberships. Since casual riders are already aware of Cyclistic and are current users of Cyclistic, she believes there is a high chance of converting casual riders into annual members.
+
+Moreno’s goal is: ***Design a marketing strategy aimed to convert casual riders into annual members***. To achieve this, the marketing analyst team will analyze historical bike trip data to identify trends to:
+
+* Better understand the difference between Cyclistic members and casual riders.
+* Why casual riders would buy a membership.
+* How digital media could affect marketing tactics.
+
+## Ask
+**Deliverable: A clear statement of the business task**.
+
+### Problem
+How can we convert casual riders to annual members to maximize the number of annual members and make the company more profitable?
+
+### Business Task
+The director of marketing believes that the number of Cyclistic members will be the key to the company’s future success. Instead of creating new marketing campaigns to increase new customers, the goal is to convert current casual riders into annual members.
+
+The three questions that are used to guide the future marketing programs are:
+
+* How do annual members and casual riders use Cyclistic bikes differently?
+* Why would casual riders buy Cyclistic annual memberships?
+* How can Cyclistic use digital media to influence casual riders to become members?
+
+In this case study, we are tasked with answering the first question:
+
+**How do annual members and casual riders use Cyclistic bikes differently?**
+
+### Key Stakeholders
+
+* **Cyclistic executive team**: The executive team will be the ones that approve of the new marketing program
+* **Lily Moreno**: The director of marketing who is responsible for campaign development and initiatives to promote the bike-sharing program.
+
+## Prepare
+**Deliverable: Description of all data sources used.**
+
+### Data Source
+
+The data can be downloaded from [Divvy Data](https://divvy-tripdata.s3.amazonaws.com/index.html). 
+
+As the data was collected by Divvy, we assume that our data source is first-party with no credibility issues. The data is released to the public every month in a CSV file.
+
+For this case study, we will be analyzing on the trips from the last 12 months, April 2020 to March 2021. As a result, our dataset will be comprised of 12 CSV files with 13 columns for:
+
+* Rider ID
+* The type of bicycle the rider rented
+* The start and end times of the trip
+* The start and end station names
+* The start and end station IDs
+* The start and end longitude and latitude coordinates
+* The rider's member type (casual or member)
+
+### Licensing, Privacy, Security and Accesibility
+The data is made available by Motivate International Inc. under the Divvy License Agreement.
+
+The data will have no Personal Identifiable Information. As a result, we will not be able to determine if casual riders live in a Cyclistic service area or if they purchased multiple single passes.
+
+## Process
+**Deliverable: Documentation of any cleaning or manipulation of data.**
+
+Due to the large dataset, R will be used for cleaning and analysis. All visualizations are also created in RStudio.
+
+### Step 1: Set up of environment
+Install and load the required packages that are needed for the cleaning and analysis.
+
+```{r loading packages}
+
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+install.packages("skimr", repos = "http://cran.us.r-project.org") 
+library(tidyverse)
+library(lubridate) 
+library(readr) 
+library(skimr) 
+
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+### Step 2: Import data
+In this section, we will import the data into our RStudio and combine the data into one data frame.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Import the dataset for each month.
 
-```{r cars}
-summary(cars)
+```{r}
+
+X202004_divvy_tripdata <- read_csv("~/Documents/Case_study/202004-divvy-tripdata.csv")
+X202005_divvy_tripdata <- read_csv("~/Documents/Case_study/202005-divvy-tripdata.csv")
+X202006_divvy_tripdata <- read_csv("~/Documents/Case_study/202006-divvy-tripdata.csv")
+X202007_divvy_tripdata <- read_csv("~/Documents/Case_study/202007-divvy-tripdata.csv")
+X202008_divvy_tripdata <- read_csv("~/Documents/Case_study/202008-divvy-tripdata.csv")
+X202009_divvy_tripdata <- read_csv("~/Documents/Case_study/202009-divvy-tripdata.csv")
+X202010_divvy_tripdata <- read_csv("~/Documents/Case_study/202010-divvy-tripdata.csv")
+X202011_divvy_tripdata <- read_csv("~/Documents/Case_study/202011-divvy-tripdata.csv")
+X202012_divvy_tripdata <- read_csv("~/Documents/Case_study/202012-divvy-tripdata.csv")
+X202101_divvy_tripdata <- read_csv("~/Documents/Case_study/202101-divvy-tripdata.csv")
+X202102_divvy_tripdata <- read_csv("~/Documents/Case_study/202102-divvy-tripdata.csv")
+X202103_divvy_tripdata <- read_csv("~/Documents/Case_study/202103-divvy-tripdata.csv")
+
 ```
 
-## Including Plots
+Check the column names in each dataset. By using **colnames** we can check that each dataset has the same colnames.
 
-You can also embed plots, for example:
+```{r}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+colnames(X202004_divvy_tripdata)
+colnames(X202005_divvy_tripdata)
+colnames(X202006_divvy_tripdata)
+colnames(X202007_divvy_tripdata)
+colnames(X202008_divvy_tripdata)
+colnames(X202009_divvy_tripdata)
+colnames(X202010_divvy_tripdata)
+colnames(X202011_divvy_tripdata)
+colnames(X202012_divvy_tripdata)
+colnames(X202101_divvy_tripdata)
+colnames(X202102_divvy_tripdata)
+colnames(X202103_divvy_tripdata)
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Combine all 12 months of the dataset into a single data frame.
+
+```{r include=FALSE}
+
+X202101_divvy_tripdata <- mutate(X202101_divvy_tripdata, start_station_id = as.character(start_station_id) ,
+                   end_station_id = as.character(end_station_id))
+X202102_divvy_tripdata <- mutate(X202102_divvy_tripdata, start_station_id = as.character(start_station_id) ,
+                   end_station_id = as.character(end_station_id))
+X202103_divvy_tripdata <- mutate(X202103_divvy_tripdata, start_station_id = as.character(start_station_id) ,
+                   end_station_id = as.character(end_station_id))
+X202102_divvy_tripdata <- mutate(X202102_divvy_tripdata, start_station_id = as.character(start_station_id) ,
+                   end_station_id = as.character(end_station_id))
+X202011_divvy_tripdata <- mutate(X202011_divvy_tripdata, start_station_id = as.character(start_station_id) ,
+                   end_station_id = as.character(end_station_id))
+X202010_divvy_tripdata <- mutate(X202010_divvy_tripdata, start_station_id = as.character(start_station_id) ,
+                   end_station_id = as.character(end_station_id))
+X202009_divvy_tripdata <- mutate(X202009_divvy_tripdata, start_station_id = as.character(start_station_id) ,
+                   end_station_id = as.character(end_station_id))
+X202008_divvy_tripdata <- mutate(X202008_divvy_tripdata, start_station_id = as.character(start_station_id) ,
+                   end_station_id = as.character(end_station_id))
+X202007_divvy_tripdata <- mutate(X202007_divvy_tripdata, start_station_id = as.character(start_station_id) ,
+                   end_station_id = as.character(end_station_id))
+X202006_divvy_tripdata <- mutate(X202006_divvy_tripdata, start_station_id = as.character(start_station_id) ,
+                   end_station_id = as.character(end_station_id))
+X202005_divvy_tripdata <- mutate(X202005_divvy_tripdata, start_station_id = as.character(start_station_id) ,
+                   end_station_id = as.character(end_station_id))
+X202004_divvy_tripdata <- mutate(X202004_divvy_tripdata, start_station_id = as.character(start_station_id) ,
+                   end_station_id = as.character(end_station_id))
+```
+
+
+```{r}
+
+annual_data <- bind_rows(X202004_divvy_tripdata, X202005_divvy_tripdata, X202006_divvy_tripdata, X202007_divvy_tripdata, X202008_divvy_tripdata, X202009_divvy_tripdata, X202010_divvy_tripdata, X202011_divvy_tripdata, X202012_divvy_tripdata, X202101_divvy_tripdata, X202102_divvy_tripdata, X202103_divvy_tripdata)
+
+```
+
+Before we do a quick check of the data, let's also create a new column to calculate trip duration in minutes and save it in a new data frame “clean_data”.
+
+```{r}
+
+clean_data <- mutate(annual_data, trip_duration=as.numeric(difftime(ended_at, started_at, units="min")))
+
+```
+
+### Step 3: Check combined data
+In this step, we will do a quick check and see an overview of our newly combined data.
+
+```{r}
+
+skim_without_charts(clean_data)
+
+```
+
+#### Observations
+Results show that there are a total of 3489748 rows and 14 columns.
+
+The following columns have missing values:
+
+* start_station_name: 122175 missing values
+* start_station_id: 122801 missing values
+* end_station_name: 143242 missing values
+* end_station_id: 143703 missing values
+* end_lat: 4738 missing values
+* end_lng: 4738 missing values
+
+
+Additionally, we can also see that there are other errors in the ending latitude and longitude values. The geographical coordinates should all be very similar as the program only runs in Chicago.
+
+The newly added “trip_duration” column also shows that there are negative trip durations and a very high trip duration of 58720.03 minutes.
+
+
+### Step 4: Cleaning Our Data Frame
+Continuing with our observations we can begin to clean our data.
+
+#### Step 4.1: Removing missing values, incorrect geographical coordinates and negative trip_durations.
+
+```{r}
+
+clean_data <- clean_data %>%
+  drop_na() %>% 
+  filter(end_lat > 0 & end_lng < 0) %>% 
+  filter(trip_duration > 0) 
+
+```
+
+A quick check with skim_without_charts() shows that all the missing values, the (0,0) coordinates, and trip_duration that were negative have all been removed. However, there are still trips that are less than 1 minute and longer than 1 day. Trips less than 1 minute will be removed as they could be false starts or riders attempting to re-dock to ensure that the bike is secured. Trip durations greater than 24 hours for casual riders will also be removed as casual riders only have single-ride passes or full-day passes, which means they cannot rent a bicycle for greater than 24 hours (or 1440 minutes).
+
+Adding the group_by function in our overview allows us to see the difference in trip_duration between casual riders and members.
+
+```{r}
+
+skim_without_charts(group_by(clean_data,member_casual))
+
+```
+
+#### Step 4.2: Remove trip durations less than one minute and greater than 1440 minutes for casual riders.
+In this step, we will remove the rows where trip_duration is less than one minute and remove rows greater than 1440 minutes for casual riders, while leaving the Cyclistic member’s rows alone.
+
+```{r}
+
+clean_data_2 <- clean_data %>%
+  filter(trip_duration > 1) %>%  
+  filter((member_casual == "casual" & trip_duration < 1440) | (member_casual == "member")) 
+
+```
+
+Another quick overview with skim_without_charts(), shows that our data frame is much cleaner now with 3238911 rows left. We do not have any missing data or whitespace in our columns, and the range of geographic coordinates is closer to each other.
+
+After our last step, the trip duration for casual riders only ranges from 1.02 minutes to 1440 minutes (24 hours) and for Cyclistic members ranges from 1.02 minutes to 58720 minutes (978.66 hours).
+
+```{r}
+
+skim_without_charts(group_by(clean_data_2, member_casual))
+
+```
+
+### Step 5: Set up clean data for analysis
+We will now create a few more columns in preparation for analysis. A new column for each year, month and day that the ride trip started, as well as the day of the week and whether that day is a weekday or not.
+
+```{r}
+
+clean_data_3 <- clean_data_2 %>%
+  arrange(started_at) %>%
+  mutate(start_year = year(started_at))%>% 
+  mutate(start_month = month(started_at, label = TRUE, abbr = FALSE)) %>% 
+  mutate(start_day= day(started_at)) %>% 
+  mutate(start_day_of_week = wday(started_at, label = TRUE, abbr = FALSE)) %>% 
+  mutate(is_weekday = if_else(start_day_of_week =="Saturday" |start_day_of_week == "Sunday", FALSE, TRUE)) 
+
+```
+
+## Analyze
+**Deliverable: Summary of your analysis.**
+
+In the analyze section, we will create plots that will allow us to visualize the difference in how casual riders and Cyclistic members use the program differently.
+
+### Step 1: Min, Median, Mean, Max and Total Trip Duration
+Firstly, we will take a look at the min, median, mean, and max of trip duration for:
+
+* Overall trips
+* Casual riders trips
+* Cyclistic member’s trips
+
+```{r}
+
+#Min, Median, Mean, Max of overall trip duration:
+summary(clean_data_3$trip_duration)
+#Min, Median, Mean, Max of casual riders trip duration:
+summary((filter(clean_data_3,member_casual=="casual")$trip_duration))
+#Min, Median, Mean, Max of member trip duration:
+summary((filter(clean_data_3,member_casual=="member")$trip_duration))
+
+```
+
+As well as the total trip duration for casual riders and Cyclistic members:
+
+```{r}
+
+#Total trip duration for casual riders
+sum(filter(clean_data_3,member_casual == "casual")$trip_duration)
+#Total trip duration for members:
+sum(filter(clean_data_3,member_casual == "member")$trip_duration)
+
+```
+
+#### Observations:
+This further shows that all trips are between 1 minute and 1440 minutes (24 hours) for casual riders and greater than 1 minute for Cyclistic members who are not limited by full-day passes.
+
+The second half of step 1 shows that the overall total trip duration for casual members is greater than the total trip duration for Cyclistic members.
+
+### Step 2: Plot 1 - Number of Riders vs Type of Membership
+The first graph will show how many riders there are for each member type. This visualization is also split into weekend users and weekday users.
+
+```{r}
+
+weekday_label <- c("Weekend", "Weekday")
+names(weekday_label) <- c("FALSE", "TRUE")
+clean_data_3 %>%
+  group_by(member_casual, is_weekday) %>%
+  summarize(number_of_rides = n()) %>%
+  ggplot(aes(x = member_casual, y= number_of_rides, fill = member_casual))+
+    geom_col()+
+    facet_wrap(~is_weekday, labeller = labeller(is_weekday = weekday_label))+
+    labs(title = "Number of Riders for Each Membership", x = "Member Type", y = "Number of Rides")+
+    scale_y_continuous(labels = scales::comma) +
+    scale_x_discrete(labels = c("Casual Rider", "Cyclistic Member"))+
+    theme(axis.text.x =  element_text(angle=45, margin=margin(t=20)), legend.position="none")+
+    geom_text(aes(label=number_of_rides, vjust=1.5))
+
+```
+
+This first bar graph illustrates that the number of users during the weekend is very similar between casual riders (562,995) and Cyclistic members (545,864). However, during the weekday, it is evident that there are more Cyclistic members (1,361,028) compared to the 769,024 casual riders.
+
+### Step 3: Plot 2 - Number of Rides by Day of the Week
+Our second plot will show the number of riders for each day of the week for casual riders and Cyclistic members.
+
+```{r}
+
+rides_day_of_week <- clean_data_3 %>%
+  group_by(member_casual, start_day_of_week) 
+
+rides_day_of_week %>%
+  summarize(number_of_rides = n()) %>%
+  arrange(member_casual, start_day_of_week) %>%
+  ggplot(aes(x = start_day_of_week, y = number_of_rides, fill = member_casual)) + 
+    geom_col(position="dodge")+
+    labs(title="Number of Rides by Day of the Week", x = "Day of the Week", y = "Number of Rides", fill = "Member Type") +
+    scale_y_continuous(labels = scales::comma) +  
+    scale_fill_discrete(labels = c("Casual Riders", "Cyclistic Members"))+ 
+    theme(axis.text.x = element_text(angle = 45)) 
+
+```
+
+With this bar graph, we can see that there are more riders during the weekdays for Cyclistic members. This is due to the members using the program to commute to and from work.
+
+During the weekend, the number of rides is roughly the same between casual riders and Cyclistic members, with more casual riders on Saturdays and nearly the same number of rides between Cyclistic members and casual riders on Sundays. This shows that the number of people between casual riders and Cyclistic members that use the program for leisure purposes during the weekend is roughly the same.
+
+### Step 4: Plot 3 - Number of Rides by Month
+This third visualization will show the difference in the number of rides for each month.
+
+```{r}
+
+monthly_rides <- clean_data_3 
+monthly_rides$start_month <- ordered(monthly_rides$start_month, levels = c("April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"))
+
+monthly_rides %>%
+  group_by(member_casual, start_month) %>%
+  summarize(number_of_rides = n()) %>%
+  arrange(member_casual, start_month) %>%
+  ggplot(aes(x = start_month, y = number_of_rides, fill = member_casual)) + 
+    geom_col(position="dodge") + 
+    theme(axis.text.x = element_text(angle = 45), legend.position= c(0.7, 0.85)) +  
+    scale_y_continuous(labels = scales::comma, breaks=c(0, 50000, 100000, 150000, 200000, 250000, 300000)) + 
+    labs(title="Number of Rides by Month", x = "Month", y = "Number of Rides", fill="Member Type")+
+    scale_fill_discrete(labels = c("Casual Riders", "Cyclistic Members"))+ 
+    scale_x_discrete(labels = c( "April 20", "May 20", "June 20", "July 20", "August 20", "September 20", "October 20", "November 20", "December 20", "January 21", "Febuary 21", "March 21"))
+
+```
+
+Since the data we are using is from April 2020 to March 2021, our bar graph is organized as such.
+
+From this graph, we can see that the program is popular for both casual riders and Cyclistic members during the peak summer months of July and August, with a slight decline during the spring and fall months for casual riders. However, there is a large decline in users during the winter months (November to February) for both casual riders and Cyclistic members. The drop in usage for Cyclistic members is not as great as for casual riders during the winter months.
+
+### Step 5: Plot 4 - Number of Rides Started Every Hour
+Plot 4 will show the number of rides that started every hour for each day of the week.
+
+```{r}
+
+hourly_rides <- clean_data_3 %>% 
+  mutate(start_hour = hour(started_at)) %>%
+  group_by(member_casual, start_hour, start_day_of_week)
+
+hourly_rides %>%
+  summarize(number_of_rides = n()) %>%
+  arrange(member_casual, start_hour) %>%
+  ggplot(aes(x=start_hour, y = number_of_rides, fill = member_casual))+ 
+    geom_col(position="dodge")+
+    facet_wrap(~start_day_of_week)+ 
+    labs(title = "Number of Rides Started Every Hour", x = "Time Ride Started (24Hr)", y = "Number of Rides", fill = "Member Type") +
+    scale_fill_discrete(labels = c("Casual Riders", "Cyclistic Members"))+
+    scale_y_continuous(labels = scales::comma, breaks=c(0, 10000, 20000, 30000, 40000))+ 
+    scale_x_continuous(breaks=c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22)) + 
+    theme(axis.text.x = element_text(angle = 90), legend.position= c(0.7, 0.15))
+
+```
+
+Plot 4 illustrates that the number of rides started at each hour on the weekends is similar between casual riders and Cyclistic members. This shows that the trends between casual riders and Cyclistic members for leisure purposes are similar. However, during the weekdays, peaks between 7 AM (7H) to 9 AM (9H) and 4 PM (16H) to 6 PM (18H) clearly show that many Cyclistic members use the program to commute to and from work. Comparatively, casual riders tend to have a gradually increasing trend of riders as the day progresses with small peaks during commute hours on Tuesdays, Wednesdays, Thursdays and Fridays.
+
+### Step 6: Plot 5: Average Duration of Rides by Month
+This next visualization shows the average duration of rides for each month.
+
+```{r}
+
+monthly_rides %>% 
+  group_by(member_casual, start_month) %>%
+  summarize(average_duration=mean(trip_duration)) %>%
+  ggplot(aes(x = start_month, y = average_duration, fill = member_casual))+
+  geom_col(position="dodge")+
+  labs(title="Average Duration for Each Month", x = "Month", y = "Average Duration (Minutes)", fill = "Member Type") +
+  theme(axis.text.x = element_text(angle = 45))+
+  scale_fill_discrete(labels = c("Casual Riders", "Cyclistic Members"))+
+  scale_x_discrete(labels = c("April 20", "May 20", "June 20", "July 20", "August 20", "September 20", "October 20", "November 20", "December 20", "January 21", "Febuary 21", "March 21"))
+
+```
+
+According to this graph, on average, casual riders will borrow a bicycle for longer periods than Cyclistic members. Casual riders have an average trip duration of roughly 25 minutes to 45 minutes throughout the year. During the winter months, the average rides for casual riders drops to less than 25 minutes, with summer rides ranging from 40 to 45 minutes. While Cyclistic members have an average trip duration ranging from 12 minutes to 22 minutes. This could be due to the costs of single passes. Cyclistic members, who have an unlimited number of rentals throughout the year, could return bikes in between stops and errands, while casual riders will need to pay every time they rent and return. This could lead to casual riders keeping the bicycle and not returning it to a docking station between errands.
+
+### Step 7: Plot 6 - Average Duration for Each Day
+Similar to the last graph, this bar graph will show the average duration of rides for each day of the week.
+
+```{r}
+
+clean_data_3 %>%
+  group_by(member_casual, start_day_of_week) %>%
+  summarize(number_of_rides = n(), average_duration = mean(trip_duration)) %>%
+  arrange(number_of_rides, start_day_of_week) %>%
+  ggplot(aes(x = start_day_of_week, y = average_duration, fill = member_casual))+
+    geom_col(position= "dodge")+
+    labs(title="Average Duration for Each Day", x = "Day of the Week", y = "Average Duration (Minutes)", fill = "Member Type")+
+    scale_fill_discrete(labels = c("Casual Riders", "Cyclistic Members"))+
+    scale_y_continuous(breaks = c(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50))+
+    theme(axis.text.x = element_text(angle = 45))
+
+```
+
+Similar to Plot 5, Plot 6 also shows a greater average duration of rides for casual riders for each day of the week. During the weekend, on average casual riders have leisure rides for greater than 40 minutes and around 33 to 42 minutes during the week. For Cyclistic members, the average duration of rides ranges between 15 to 18 minutes.
+
+### Step 8: Plot 7 - Average Duration Every Hour
+In plot 7, we can see the average duration of rides that started in each hour for each day of the week.
+
+```{r}
+
+hourly_rides %>%
+  group_by(member_casual, start_hour, start_day_of_week) %>%
+  summarize(average_duration = mean(trip_duration)) %>%
+  arrange(member_casual, start_hour) %>%
+  ggplot(aes(x=start_hour, y = average_duration, fill = member_casual))+
+    geom_col(position="dodge") + 
+    facet_wrap(~start_day_of_week)+
+    labs(title = "Average Duration Every Hour", x = "Time Ride Started (24Hr)", y = "Average Duration (Minutes)", fill = "Member Type") +
+    scale_fill_discrete(labels = c("Casual Riders", "Cyclistic Members"))+
+    scale_y_continuous(breaks = c(0, 5, 10, 15, 20, 25, 30))+
+    scale_x_continuous(breaks=c(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22)) +
+    theme(axis.text.x = element_text(angle = 90), legend.position= c(0.7, 0.15))
+
+```
+
+This series of bar graphs further shows the consistency of uses for Cyclistic members throughout weekdays. The average duration of each ride is between 15 to 20 minutes.
+
+For casual riders, there are fluctuations between the average duration for each day. On the weekdays, there seems to be a shorter average duration during dawn and early mornings with longer average duration rides every day around 10 AM to 2 PM.
+
+### Summary of Analysis
+In summary, Plot 1, Plot 2 and Plot 4 show that there is a similar number of users between casual riders and Cyclistic members during weekends. Not only are the number of riders similar, but the number of rides that start at each hour is also very similar. This shows that the leisure uses for the program between the casual riders and Cyclistic members are probably similar. However, the program is much more popular for Cyclistic members during the weekdays compared to casual riders. In plot 4, it is evident that a majority of the Cyclistic members are using the program to commute to and from work as the number of riders from 7 AM to 9 AM and 4 PM to 6 PM is greater than at any other time. There are still some casual riders who use the company’s services for commuting purposes. This can be seen from the slight increase in the number of rides for casual riders during commute hours on Tuesdays, Wednesdays, Thursdays and Fridays.
+
+Plot 3 clearly illustrates the effects of weather on the number of riders each month. As expected, there are fewer riders during the winter from November to February. With peak usage during the summer months from July and August.
+
+From Plot 5, Plot 6 and Plot 7, it seems like there is a higher average ride duration for casual riders above 30 minutes. While Cyclistic members typically only use the program for 15 to 20 minutes at a time. As mentioned earlier, this could be due to casual riders being more cost-efficient. Instead of returning their bicycles to docking stations between stops or errands, they will keep the bicycle with them causing the average duration to increase. Conversely, Cyclistic members who do not have to worry about the cost per ride, are free to return the bicycle in between errands, keeping the average duration lower.
+
+## Share and Act
+**Deliverable: Supporting visualizations and key findings. Top three recommendations based on your analysis.**
+
+The 7 visualizations from the Analyze sections can be used for our presentation to our stakeholders. Here is the [powerpoint presentation](https://1drv.ms/p/s!AjrEp9QDw3kvghpCFJFfZzDyVtQP?e=debmu4) with the detailed analysis and recommendations. 
+
+### Recommendations:
+With the summary of our analysis from the last section, our recommendations for the stakeholders are:
+
+* To determine which casual riders have a tendency to use Cyclistic’s services for commutes but have yet to sign up for an annual membership. These users are most likely to sign up for a Cyclistic membership to optimize savings for daily commutes.
+* To target a decrease in the number of users for both casual riders and Cyclistic members, the company should look into installing winter tires for the bicycles. This could make commutes and cycling during the winter, and snowy months safer therefore increasing the number of users.
+* Offer incentives for casual riders to dock their bicycles in between errands by offering a lower rate if two rentals are within a few minutes apart. Then show an annual summary to casual riders of the savings they could have achieved by signing up for an annual membership.
+
+Additionally, the company can also offer additional pricing packages such as:
+
+* Weekend-only packages. Instead of purchasing two full-day passes for casual riders looking for leisure uses during the weekend, they can purchase a one-weekend package and enjoy unlimited rides during the whole weekend.
+* Commute packages. Allows casual riders more incentives to use the program during commute hours as opposed to driving or taking public transit.
